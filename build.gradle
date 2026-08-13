@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '6.0.23'
+}
+group = 'com.yourname'
+version = '1.0.0'
+java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
+minecraft { mappings channel: 'official', version: '1.20.1' }
+repositories {
+    maven { name = 'CurseMaven'; url = 'https://cursemaven.com' }
+}
+dependencies {
+    minecraft "net.minecraftforge:forge:1.20.1-47.4.10"
+}
+tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}

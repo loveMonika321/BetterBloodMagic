@@ -17,3 +17,8 @@ tasks.register('sourceJar', Jar) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
 }
+
+tasks.register("sourceJar", Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = "sources"
+}

@@ -1,0 +1,54 @@
+name: Forge 1.20.1 Source Pack
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle 8.2.1
+      uses: gradle/gradle-build-action@v3
+      with:
+        gradle-version: '8.2.1'
+
+    - name: Create settings.gradle with pluginManagement
+      run: |
+        cat > settings.gradle << 'EOF'
+        pluginManagement {
+            repositories {
+                gradlePluginPortal()
+                maven {
+                    name = 'Forge'
+                    url = 'https://maven.minecraftforge.net/'
+                }
+            }
+        }
+        rootProject.name = 'ProjectE-Soulstone'
+        EOF
+
+    - name: Update build.gradle plugin version
+      run: |
+        sed -i "s/id 'net.minecraftforge.gradle' version '\[6.0,6.2)'/id 'net.minecraftforge.gradle' version '6.0.23'/" build.gradle
+
+    - name: Build source JAR (skip compilation)
+      run: gradle sourceJar --no-daemon
+
+    - name: Upload source JAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProjectE-Soulstone-sources
+        path: build/libs/*-sources.jar

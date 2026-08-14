@@ -1,4 +1,4 @@
-name: Forge 1.20.1 Source Pack
+name: Build and Release
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout code
@@ -21,34 +23,28 @@ jobs:
         distribution: 'temurin'
 
     - name: Setup Gradle 8.2.1
-      uses: gradle/gradle-build-action@v3
+      uses: gradle/actions/setup-gradle@v3
       with:
         gradle-version: '8.2.1'
 
-    - name: Create settings.gradle with pluginManagement
-      run: |
-        cat > settings.gradle << 'EOF'
-        pluginManagement {
-            repositories {
-                gradlePluginPortal()
-                maven {
-                    name = 'Forge'
-                    url = 'https://maven.minecraftforge.net/'
-                }
-            }
-        }
-        rootProject.name = 'ProjectE-Soulstone'
-        EOF
+    - name: Build JAR
+      run: gradle build --no-daemon
 
-    - name: Update build.gradle plugin version
-      run: |
-        sed -i "s/id 'net.minecraftforge.gradle' version '\[6.0,6.2)'/id 'net.minecraftforge.gradle' version '6.0.23'/" build.gradle
-
-    - name: Build source JAR (skip compilation)
-      run: gradle sourceJar --no-daemon
-
-    - name: Upload source JAR artifact
+    - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ProjectE-Soulstone-sources
-        path: build/libs/*-sources.jar
+        name: BetterBloodMagic-jar
+        path: build/libs/*.jar
+
+    - name: Create Release and Upload Asset
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        token: ${{ secrets.GH_TOKEN }}
+        files: build/libs/*.jar
+        tag_name: v1.0.0-${{ github.run_number }}
+        name: BetterBloodMagic v1.0.0 (Build ${{ github.run_number }})
+        body: |
+          Automated build from commit ${{ github.sha }}
+
+          Built with Forge 1.20.1-47.4.10

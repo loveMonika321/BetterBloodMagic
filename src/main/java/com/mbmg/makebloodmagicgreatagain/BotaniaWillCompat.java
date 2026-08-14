@@ -65,19 +65,19 @@ public final class BotaniaWillCompat {
     }
 
     public static boolean isLivingHelmet(ItemStack stack) {
-        if (stack == null || stack.m_41619_()) {
+        if (stack == null || stack.isEmpty()) {
             return false;
         }
-        Item item = stack.m_41720_();
+        Item item = stack.getItem();
         if (!(item instanceof ArmorItem)) {
             return false;
         }
         ArmorItem armor = (ArmorItem)item;
-        if (armor.m_266204_() != ArmorItem.Type.HELMET) {
+        if (armor.getType() != ArmorItem.Type.HELMET) {
             return false;
         }
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey((Object)item);
-        return id != null && "bloodmagic".equals(id.m_135827_()) && "livinghelmet".equals(id.m_135815_());
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
+        return id != null && "bloodmagic".equals(id.getNamespace()) && "livinghelmet".equals(id.getPath());
     }
 
     static boolean isAncientWillItem(Item item) {
@@ -85,11 +85,11 @@ public final class BotaniaWillCompat {
     }
 
     static Enum<?> getWillType(ItemStack willStack) {
-        if (!BotaniaWillCompat.isAncientWillItem(willStack.m_41720_())) {
+        if (!BotaniaWillCompat.isAncientWillItem(willStack.getItem())) {
             return null;
         }
         try {
-            return (Enum)ANCIENT_WILL_TYPE_FIELD.get(willStack.m_41720_());
+            return (Enum)ANCIENT_WILL_TYPE_FIELD.get(willStack.getItem());
         }
         catch (IllegalAccessException e) {
             return null;
@@ -125,14 +125,14 @@ public final class BotaniaWillCompat {
         public boolean matches(CraftingContainer inv, Level level) {
             boolean foundHelmet = false;
             boolean foundWill = false;
-            for (int i = 0; i < inv.m_6643_(); ++i) {
-                ItemStack s = inv.m_8020_(i);
-                if (s.m_41619_()) continue;
+            for (int i = 0; i < inv.getContainerSize(); ++i) {
+                ItemStack s = inv.getItem(i);
+                if (s.isEmpty()) continue;
                 if (!foundHelmet && BotaniaWillCompat.isLivingHelmet(s)) {
                     foundHelmet = true;
                     continue;
                 }
-                if (!foundWill && BotaniaWillCompat.isAncientWillItem(s.m_41720_())) {
+                if (!foundWill && BotaniaWillCompat.isAncientWillItem(s.getItem())) {
                     foundWill = true;
                     continue;
                 }
@@ -142,33 +142,33 @@ public final class BotaniaWillCompat {
         }
 
         public ItemStack assemble(CraftingContainer inv, RegistryAccess registries) {
-            ItemStack helmet = ItemStack.f_41583_;
+            ItemStack helmet = ItemStack.EMPTY;
             Enum<?> will = null;
-            for (int i = 0; i < inv.m_6643_(); ++i) {
-                ItemStack s = inv.m_8020_(i);
-                if (s.m_41619_()) continue;
+            for (int i = 0; i < inv.getContainerSize(); ++i) {
+                ItemStack s = inv.getItem(i);
+                if (s.isEmpty()) continue;
                 if (BotaniaWillCompat.isLivingHelmet(s)) {
                     helmet = s;
                     continue;
                 }
                 will = BotaniaWillCompat.getWillType(s);
             }
-            if (helmet.m_41619_() || will == null) {
-                return ItemStack.f_41583_;
+            if (helmet.isEmpty() || will == null) {
+                return ItemStack.EMPTY;
             }
             if (BotaniaWillCompat.readWillTag(helmet, MakeBloodMagicGreatAgain.lowerName(will))) {
-                return ItemStack.f_41583_;
+                return ItemStack.EMPTY;
             }
-            ItemStack out = helmet.m_41777_();
+            ItemStack out = helmet.copy();
             BotaniaWillCompat.writeWillTag(out, will, true);
             return out;
         }
 
-        public boolean m_8004_(int width, int height) {
+        public boolean canCraftInDimensions(int width, int height) {
             return width * height >= 2;
         }
 
-        public RecipeSerializer<?> m_7707_() {
+        public RecipeSerializer<?> getSerializer() {
             return (RecipeSerializer)MBMGRecipes.ANCIENT_WILL.get();
         }
     }

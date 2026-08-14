@@ -31,7 +31,7 @@ public class ClientSetup {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> MenuScreens.m_96206_((MenuType)((MenuType)MBMGMenus.RITUAL_SELECT.get()), RitualSelectionScreen::new));
+        event.enqueueWork(() -> MenuScreens.register((MenuType)((MenuType)MBMGMenus.RITUAL_SELECT.get()), RitualSelectionScreen::new));
     }
 
     @SubscribeEvent

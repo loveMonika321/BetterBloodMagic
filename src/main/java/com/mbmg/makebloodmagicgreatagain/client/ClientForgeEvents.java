@@ -33,17 +33,17 @@ public class ClientForgeEvents {
         if (event.phase != TickEvent.Phase.END) {
             return;
         }
-        Minecraft mc = Minecraft.m_91087_();
-        if (mc.f_91074_ == null || mc.f_91080_ != null) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.screen != null) {
             lastZDown = false;
             return;
         }
-        boolean now = ClientSetup.KEY_OPEN_RITUAL_SELECT.m_90859_();
+        boolean now = ClientSetup.KEY_OPEN_RITUAL_SELECT.consumeClick();
         if (!now) {
             return;
         }
-        ItemStack main = mc.f_91074_.m_21205_();
-        ItemStack off = mc.f_91074_.m_21206_();
+        ItemStack main = mc.player.getMainHandItem();
+        ItemStack off = mc.player.getOffhandItem();
         if (!RitualSelectionMenu.isRitualDiviner(main) && !RitualSelectionMenu.isRitualDiviner(off)) {
             return;
         }

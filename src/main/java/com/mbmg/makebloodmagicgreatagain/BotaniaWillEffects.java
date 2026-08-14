@@ -51,14 +51,14 @@ public final class BotaniaWillEffects {
         if (!BotaniaWillEffects.hasFullLivingSet(player)) {
             return;
         }
-        ItemStack helmet = player.m_6844_(EquipmentSlot.HEAD);
+        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
         if (!BotaniaWillCompat.isLivingHelmet(helmet)) {
             return;
         }
         if (!BotaniaWillCompat.readWillTag(helmet, "dharok")) {
             return;
         }
-        float missingRatio = 1.0f - player.m_21223_() / player.m_21233_();
+        float missingRatio = 1.0f - player.getHealth() / player.getMaxHealth();
         float newMult = 1.0f + missingRatio * 0.5f;
         event.setDamageModifier(event.getDamageModifier() * newMult);
     }
@@ -66,30 +66,30 @@ public final class BotaniaWillEffects {
     @SubscribeEvent
     public static void onLivingAttacked(LivingAttackEvent event) {
         DamageSource source = event.getSource();
-        Entity entity = source.m_7639_();
+        Entity entity = source.getEntity();
         if (!(entity instanceof Player)) {
             return;
         }
         Player attacker = (Player)entity;
         LivingEntity target = event.getEntity();
-        if (target.m_9236_().f_46443_) {
+        if (target.level().isClientSide) {
             return;
         }
         if (!BotaniaWillEffects.hasFullLivingSet(attacker)) {
             return;
         }
-        ItemStack helmet = attacker.m_6844_(EquipmentSlot.HEAD);
+        ItemStack helmet = attacker.getItemBySlot(EquipmentSlot.HEAD);
         if (!BotaniaWillCompat.isLivingHelmet(helmet)) {
             return;
         }
         if (BotaniaWillCompat.readWillTag(helmet, "ahrim")) {
-            target.m_7292_(new MobEffectInstance(MobEffects.f_19613_, 20, 1));
+            target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 20, 1));
         }
         if (BotaniaWillCompat.readWillTag(helmet, "torag")) {
-            target.m_7292_(new MobEffectInstance(MobEffects.f_19597_, 60, 1));
+            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 60, 1));
         }
         if (BotaniaWillCompat.readWillTag(helmet, "karil")) {
-            target.m_7292_(new MobEffectInstance(MobEffects.f_19615_, 60, 1));
+            target.addEffect(new MobEffectInstance(MobEffects.WITHER, 60, 1));
         }
         if (BotaniaWillCompat.readWillTag(helmet, "verac") && !IN_VERAC_BYPASS.get().booleanValue()) {
             VERAC_PENDING_ORIGINAL.set(Float.valueOf(event.getAmount()));
@@ -101,30 +101,30 @@ public final class BotaniaWillEffects {
         Float original;
         float amount;
         DamageSource source = event.getSource();
-        Entity entity = source.m_7639_();
+        Entity entity = source.getEntity();
         if (!(entity instanceof Player)) {
             return;
         }
         Player attacker = (Player)entity;
         LivingEntity target = event.getEntity();
-        if (target.m_9236_().f_46443_) {
+        if (target.level().isClientSide) {
             return;
         }
         if (!BotaniaWillEffects.hasFullLivingSet(attacker)) {
             return;
         }
-        ItemStack helmet = attacker.m_6844_(EquipmentSlot.HEAD);
+        ItemStack helmet = attacker.getItemBySlot(EquipmentSlot.HEAD);
         if (!BotaniaWillCompat.isLivingHelmet(helmet)) {
             return;
         }
         if (BotaniaWillCompat.readWillTag(helmet, "guthan") && (amount = event.getAmount()) > 0.0f) {
-            attacker.m_5634_(amount * 0.25f);
+            attacker.heal(amount * 0.25f);
         }
         if ((original = VERAC_PENDING_ORIGINAL.get()) != null && original.floatValue() > event.getAmount() && !IN_VERAC_BYPASS.get().booleanValue()) {
             float bypassDelta = original.floatValue() - event.getAmount();
             event.setAmount(original.floatValue());
             IN_VERAC_BYPASS.set(true);
-            target.f_20916_ = Math.max(target.f_20916_, 0);
+            target.hurtTime = Math.max(target.hurtTime, 0);
             IN_VERAC_BYPASS.set(false);
         }
         VERAC_PENDING_ORIGINAL.remove();
@@ -141,21 +141,21 @@ public final class BotaniaWillEffects {
         catch (ClassNotFoundException e) {
             return false;
         }
-        NonNullList armor = player.m_150109_().f_35975_;
+        NonNullList<ItemStack> armor = player.getInventory().armor;
         int count = 0;
         boolean chestOk = false;
         for (ItemStack stack : armor) {
             ArmorItem ai;
-            if (stack.m_41619_()) {
+            if (stack.isEmpty()) {
                 return false;
             }
-            if (!livingContainerInterface.isInstance(stack.m_41720_())) {
+            if (!livingContainerInterface.isInstance(stack.getItem())) {
                 return false;
             }
             ++count;
-            Item item = stack.m_41720_();
-            if (!(item instanceof ArmorItem) || (ai = (ArmorItem)item).m_266204_() != ArmorItem.Type.CHESTPLATE) continue;
-            chestOk = stack.m_41776_() - stack.m_41773_() > 1;
+            Item item = stack.getItem();
+            if (!(item instanceof ArmorItem) || (ai = (ArmorItem)item).getType() != ArmorItem.Type.CHESTPLATE) continue;
+            chestOk = stack.getMaxDamage() - stack.getDamageValue() > 1;
         }
         return count == 4 && chestOk;
     }

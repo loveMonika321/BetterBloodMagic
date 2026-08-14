@@ -36,7 +36,7 @@ public class SelectRitualPacket {
     public static void encode(SelectRitualPacket msg, FriendlyByteBuf buf) {
         if (msg.ritualId != null) {
             buf.writeBoolean(true);
-            buf.m_130085_(msg.ritualId);
+            buf.writeResourceLocation(msg.ritualId);
         } else {
             buf.writeBoolean(false);
         }
@@ -45,7 +45,7 @@ public class SelectRitualPacket {
     public static SelectRitualPacket decode(FriendlyByteBuf buf) {
         ResourceLocation id = null;
         if (buf.readBoolean()) {
-            id = buf.m_130281_();
+            id = buf.readResourceLocation();
         }
         return new SelectRitualPacket(id);
     }
@@ -57,12 +57,12 @@ public class SelectRitualPacket {
             if (player == null) {
                 return;
             }
-            AbstractContainerMenu patt1318$temp = player.f_36096_;
+            AbstractContainerMenu patt1318$temp = player.containerMenu;
             if (!(patt1318$temp instanceof RitualSelectionMenu)) {
                 return;
             }
             RitualSelectionMenu menu = (RitualSelectionMenu)patt1318$temp;
-            ItemStack diviner = menu.getHeldDiviner(player.m_150109_());
+            ItemStack diviner = menu.getHeldDiviner(player.getInventory());
             if (!RitualSelectionMenu.isRitualDiviner(diviner)) {
                 return;
             }
@@ -72,12 +72,12 @@ public class SelectRitualPacket {
             }
             RitualSelectionMenu.setHeldDivinerNbt((Player)player, menu.heldSlotId, id);
             if (id != null) {
-                String translateKey = "ritual." + id.m_135827_() + "." + id.m_135815_();
-                msgComp = Component.m_237110_((String)"mbmg.ritual_select.selected", (Object[])new Object[]{Component.m_237110_((String)translateKey, (Object[])new Object[]{id.toString()})});
+                String translateKey = "ritual." + id.getNamespace() + "." + id.getPath();
+                msgComp = Component.translatable((String)"mbmg.ritual_select.selected", (Object[])new Object[]{Component.translatable((String)translateKey, (Object[])new Object[]{id.toString()})});
             } else {
-                msgComp = Component.m_237115_((String)"mbmg.ritual_select.cleared");
+                msgComp = Component.translatable((String)"mbmg.ritual_select.cleared");
             }
-            player.m_240418_((Component)msgComp, true);
+            player.sendSystemMessage((Component)msgComp, true);
         });
         ctx.get().setPacketHandled(true);
     }

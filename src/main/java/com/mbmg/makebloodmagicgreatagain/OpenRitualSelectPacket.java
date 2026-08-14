@@ -45,10 +45,10 @@ public class OpenRitualSelectPacket {
             if (player == null) {
                 return;
             }
-            ItemStack main = player.m_21205_();
-            ItemStack off = player.m_21206_();
+            ItemStack main = player.getMainHandItem();
+            ItemStack off = player.getOffhandItem();
             if (RitualSelectionMenu.isRitualDiviner(main)) {
-                slot = player.m_150109_().f_35977_;
+                slot = player.getInventory().selected;
             } else if (RitualSelectionMenu.isRitualDiviner(off)) {
                 slot = 35;
             } else {
@@ -58,14 +58,14 @@ public class OpenRitualSelectPacket {
             final boolean isOffhand = RitualSelectionMenu.isRitualDiviner(off) && !RitualSelectionMenu.isRitualDiviner(main);
             NetworkHooks.openScreen((ServerPlayer)player, (MenuProvider)new MenuProvider(){
 
-                public AbstractContainerMenu m_7208_(int id, Inventory inv, Player p) {
+                public AbstractContainerMenu createMenu(int id, Inventory inv, Player p) {
                     return new RitualSelectionMenu(id, inv, isOffhand ? -1 : heldSlot);
                 }
 
-                public Component m_5446_() {
-                    return Component.m_237110_((String)"mbmg.ritual_select.title", (Object[])new Object[]{Component.m_237115_((String)"item.bloodmagic.ritualdiviner")});
+                public Component getDisplayName() {
+                    return Component.translatable((String)"mbmg.ritual_select.title", (Object[])new Object[]{Component.translatable((String)"item.bloodmagic.ritualdiviner")});
                 }
-            }, buf -> buf.m_130130_(isOffhand ? -1 : heldSlot));
+            }, buf -> buf.writeVarInt(isOffhand ? -1 : heldSlot));
         });
         ctx.get().setPacketHandled(true);
     }

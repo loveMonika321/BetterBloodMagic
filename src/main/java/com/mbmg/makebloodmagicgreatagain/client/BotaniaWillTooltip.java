@@ -36,7 +36,7 @@ public class BotaniaWillTooltip {
     @SubscribeEvent
     public static void onLivingHelmetTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        if (stack == null || stack.m_41619_()) {
+        if (stack == null || stack.isEmpty()) {
             return;
         }
         if (!BotaniaWillCompat.isLivingHelmet(stack)) {
@@ -52,8 +52,8 @@ public class BotaniaWillTooltip {
         }
         ArrayList<MutableComponent> willLines = new ArrayList<MutableComponent>();
         for (int i = 0; i < WILL_NAMES.length; ++i) {
-            if (!stack.m_41784_().m_128471_(BOTANIA_WILL_TAG_PREFIX + WILL_NAMES[i])) continue;
-            willLines.add(Component.m_237115_((String)WILL_DESC_KEYS[i]).m_130940_(ChatFormatting.GRAY));
+            if (!stack.getOrCreateTag().getBoolean(BOTANIA_WILL_TAG_PREFIX + WILL_NAMES[i])) continue;
+            willLines.add(Component.translatable((String)WILL_DESC_KEYS[i]).withStyle(ChatFormatting.GRAY));
         }
         if (willLines.isEmpty()) {
             return;

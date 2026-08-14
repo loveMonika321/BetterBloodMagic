@@ -58,26 +58,26 @@ extends AbstractContainerMenu {
         this.availableRituals = RitualSelectionMenu.collectAvailable(held);
         for (int row = 0; row < 3; ++row) {
             for (int col = 0; col < 9; ++col) {
-                this.m_38897_(new Slot((Container)inv, col + row * 9 + 9, 8 + col * 18, 190 + row * 18));
+                this.addSlot(new Slot((Container)inv, col + row * 9 + 9, 8 + col * 18, 190 + row * 18));
             }
         }
         for (int col = 0; col < 9; ++col) {
-            this.m_38897_(new Slot((Container)inv, col, 8 + col * 18, 248));
+            this.addSlot(new Slot((Container)inv, col, 8 + col * 18, 248));
         }
     }
 
     public ItemStack getHeldDiviner(Inventory inv) {
         if (this.heldSlotId < 0) {
-            return inv.f_35978_ != null ? inv.f_35978_.m_21206_() : ItemStack.f_41583_;
+            return inv.player != null ? inv.player.getOffhandItem() : ItemStack.EMPTY;
         }
-        if (this.heldSlotId < inv.m_6643_()) {
-            return inv.m_8020_(this.heldSlotId);
+        if (this.heldSlotId < inv.getContainerSize()) {
+            return inv.getItem(this.heldSlotId);
         }
-        return ItemStack.f_41583_;
+        return ItemStack.EMPTY;
     }
 
     public static void setHeldDivinerNbt(Player player, int slot, ResourceLocation id) {
-        ItemStack diviner = slot < 0 ? player.m_21206_() : player.m_150109_().m_8020_(slot);
+        ItemStack diviner = slot < 0 ? player.getOffhandItem() : player.getInventory().getItem(slot);
         RitualSelectionMenu.writeCurrentRitualId(diviner, id);
     }
 
@@ -87,33 +87,33 @@ extends AbstractContainerMenu {
     }
 
     public static boolean isRitualDiviner(ItemStack stack) {
-        if (stack == null || stack.m_41619_()) {
+        if (stack == null || stack.isEmpty()) {
             return false;
         }
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey((Object)stack.m_41720_());
-        if (id == null || !"bloodmagic".equals(id.m_135827_())) {
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        if (id == null || !"bloodmagic".equals(id.getNamespace())) {
             return false;
         }
-        String p = id.m_135815_();
+        String p = id.getPath();
         return p.equals("ritualdiviner") || p.equals("ritualdivinerdusk");
     }
 
     public static int readDivinerType(ItemStack diviner) {
-        if (diviner == null || diviner.m_41619_()) {
+        if (diviner == null || diviner.isEmpty()) {
             return 0;
         }
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey((Object)diviner.m_41720_());
-        if (id != null && "ritualdivinerdusk".equals(id.m_135815_())) {
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(diviner.getItem());
+        if (id != null && "ritualdivinerdusk".equals(id.getPath())) {
             return 1;
         }
         return 0;
     }
 
     public static ResourceLocation readCurrentRitualId(ItemStack diviner) {
-        if (diviner == null || !diviner.m_41782_()) {
+        if (diviner == null || !diviner.hasTag()) {
             return null;
         }
-        String s = diviner.m_41783_().m_128461_("current_ritual");
+        String s = diviner.getTag().getString("current_ritual");
         if (s == null || s.isEmpty()) {
             return null;
         }
@@ -126,11 +126,11 @@ extends AbstractContainerMenu {
     }
 
     public static void writeCurrentRitualId(ItemStack diviner, ResourceLocation ritualId) {
-        if (diviner == null || diviner.m_41619_()) {
+        if (diviner == null || diviner.isEmpty()) {
             return;
         }
         String v = ritualId != null ? ritualId.toString() : "";
-        diviner.m_41784_().m_128359_("current_ritual", v);
+        diviner.getOrCreateTag().putString("current_ritual", v);
     }
 
     private static List<RitualEntry> collectAvailable(ItemStack diviner) {
@@ -146,7 +146,7 @@ extends AbstractContainerMenu {
                 return out;
             }
             Iterable it = (Iterable)rituals;
-            Item itemObj = diviner != null && !diviner.m_41619_() ? diviner.m_41720_() : null;
+            Item itemObj = diviner != null && !diviner.isEmpty() ? diviner.getItem() : null;
             for (Object ritual : it) {
                 try {
                     String idStr = null;
@@ -171,7 +171,7 @@ extends AbstractContainerMenu {
                     catch (Throwable t) {
                         continue;
                     }
-                    String name = "ritual." + rl.m_135827_() + "." + rl.m_135815_();
+                    String name = "ritual." + rl.getNamespace() + "." + rl.getPath();
                     out.add(new RitualEntry(rl, name));
                 }
                 catch (Throwable throwable) {}
@@ -184,12 +184,12 @@ extends AbstractContainerMenu {
         return Collections.unmodifiableList(out);
     }
 
-    public ItemStack m_7648_(Player player, int index) {
-        return ItemStack.f_41583_;
+    public ItemStack quickMoveStack(Player player, int index) {
+        return ItemStack.EMPTY;
     }
 
-    public boolean m_6875_(Player player) {
-        return RitualSelectionMenu.isRitualDiviner(this.getHeldDiviner(player.m_150109_()));
+    public boolean stillValid(Player player) {
+        return RitualSelectionMenu.isRitualDiviner(this.getHeldDiviner(player.getInventory()));
     }
 
     static {

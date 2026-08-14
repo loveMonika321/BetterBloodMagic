@@ -22,8 +22,8 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 public final class MBMGMenus {
-    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create((ResourceKey)Registries.f_256798_, (String)"makebloodmagicgreatagain");
-    public static final RegistryObject<MenuType<RitualSelectionMenu>> RITUAL_SELECT = MENUS.register("ritual_select", () -> IForgeMenuType.create((id, inv, data) -> new RitualSelectionMenu(id, inv, data.m_130242_())));
+    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create((ResourceKey)Registries.MENU, (String)"makebloodmagicgreatagain");
+    public static final RegistryObject<MenuType<RitualSelectionMenu>> RITUAL_SELECT = MENUS.register("ritual_select", () -> IForgeMenuType.create((id, inv, data) -> new RitualSelectionMenu(id, inv, data.readVarInt())));
 
     static void register(IEventBus modBus) {
         MENUS.register(modBus);

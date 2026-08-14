@@ -56,49 +56,49 @@ final class AvaritiaInfinityUpgradeCompat {
     }
 
     static boolean isLivingPlate(ItemStack stack) {
-        if (stack == null || stack.m_41619_()) {
+        if (stack == null || stack.isEmpty()) {
             return false;
         }
-        Item item = stack.m_41720_();
+        Item item = stack.getItem();
         if (!(item instanceof ArmorItem)) {
             return false;
         }
         ArmorItem armor = (ArmorItem)item;
-        if (armor.m_266204_() != ArmorItem.Type.CHESTPLATE) {
+        if (armor.getType() != ArmorItem.Type.CHESTPLATE) {
             return false;
         }
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey((Object)item);
-        return id != null && "bloodmagic".equals(id.m_135827_()) && "livingplate".equals(id.m_135815_());
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(item);
+        return id != null && "bloodmagic".equals(id.getNamespace()) && "livingplate".equals(id.getPath());
     }
 
     static boolean isInfinityCatalyst(ItemStack stack) {
-        if (stack == null || stack.m_41619_()) {
+        if (stack == null || stack.isEmpty()) {
             return false;
         }
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey((Object)stack.m_41720_());
-        return id != null && "avaritia".equals(id.m_135827_()) && "infinity_catalyst".equals(id.m_135815_());
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return id != null && "avaritia".equals(id.getNamespace()) && "infinity_catalyst".equals(id.getPath());
     }
 
     static boolean isAlreadyMaxed(ItemStack plate) {
-        if (!plate.m_41782_() || !plate.m_41783_().m_128441_(LIVING_STATS_TAG)) {
+        if (!plate.hasTag() || !plate.getTag().contains(LIVING_STATS_TAG)) {
             return false;
         }
-        return plate.m_41783_().m_128469_(LIVING_STATS_TAG).m_128451_(MAX_POINTS_KEY) >= Integer.MAX_VALUE;
+        return plate.getTag().getCompound(LIVING_STATS_TAG).getInt(MAX_POINTS_KEY) >= Integer.MAX_VALUE;
     }
 
     static ItemStack applyMaxPoints(ItemStack plate) {
         CompoundTag livingStats;
-        ItemStack out = plate.m_41777_();
-        CompoundTag tag = out.m_41784_();
-        if (tag.m_128441_(LIVING_STATS_TAG)) {
-            livingStats = tag.m_128469_(LIVING_STATS_TAG);
+        ItemStack out = plate.copy();
+        CompoundTag tag = out.getOrCreateTag();
+        if (tag.contains(LIVING_STATS_TAG)) {
+            livingStats = tag.getCompound(LIVING_STATS_TAG);
         } else {
             livingStats = new CompoundTag();
-            livingStats.m_128365_(UPGRADES_KEY, (Tag)new ListTag());
-            livingStats.m_128379_(EVOLVED_KEY, true);
+            livingStats.put(UPGRADES_KEY, (Tag)new ListTag());
+            livingStats.putBoolean(EVOLVED_KEY, true);
         }
-        livingStats.m_128405_(MAX_POINTS_KEY, Integer.MAX_VALUE);
-        tag.m_128365_(LIVING_STATS_TAG, (Tag)livingStats);
+        livingStats.putInt(MAX_POINTS_KEY, Integer.MAX_VALUE);
+        tag.put(LIVING_STATS_TAG, (Tag)livingStats);
         return out;
     }
 
@@ -111,9 +111,9 @@ final class AvaritiaInfinityUpgradeCompat {
         public boolean matches(CraftingContainer inv, Level level) {
             boolean foundPlate = false;
             boolean foundCatalyst = false;
-            for (int i = 0; i < inv.m_6643_(); ++i) {
-                ItemStack s = inv.m_8020_(i);
-                if (s.m_41619_()) continue;
+            for (int i = 0; i < inv.getContainerSize(); ++i) {
+                ItemStack s = inv.getItem(i);
+                if (s.isEmpty()) continue;
                 if (!foundPlate && AvaritiaInfinityUpgradeCompat.isLivingPlate(s)) {
                     foundPlate = true;
                     continue;
@@ -128,26 +128,26 @@ final class AvaritiaInfinityUpgradeCompat {
         }
 
         public ItemStack assemble(CraftingContainer inv, RegistryAccess registries) {
-            ItemStack plate = ItemStack.f_41583_;
-            for (int i = 0; i < inv.m_6643_(); ++i) {
-                ItemStack s = inv.m_8020_(i);
-                if (s.m_41619_() || !AvaritiaInfinityUpgradeCompat.isLivingPlate(s)) continue;
+            ItemStack plate = ItemStack.EMPTY;
+            for (int i = 0; i < inv.getContainerSize(); ++i) {
+                ItemStack s = inv.getItem(i);
+                if (s.isEmpty() || !AvaritiaInfinityUpgradeCompat.isLivingPlate(s)) continue;
                 plate = s;
             }
-            if (plate.m_41619_()) {
-                return ItemStack.f_41583_;
+            if (plate.isEmpty()) {
+                return ItemStack.EMPTY;
             }
             if (AvaritiaInfinityUpgradeCompat.isAlreadyMaxed(plate)) {
-                return ItemStack.f_41583_;
+                return ItemStack.EMPTY;
             }
             return AvaritiaInfinityUpgradeCompat.applyMaxPoints(plate);
         }
 
-        public boolean m_8004_(int width, int height) {
+        public boolean canCraftInDimensions(int width, int height) {
             return width * height >= 2;
         }
 
-        public RecipeSerializer<?> m_7707_() {
+        public RecipeSerializer<?> getSerializer() {
             return (RecipeSerializer)MBMGRecipes.INFINITY_UPGRADE.get();
         }
     }

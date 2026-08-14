@@ -48,18 +48,18 @@ extends AbstractContainerScreen<RitualSelectionMenu> {
     private final List<EntryButton> buttons = new ArrayList<EntryButton>();
 
     public RitualSelectionScreen(RitualSelectionMenu menu, Inventory inv, Component title) {
-        super((AbstractContainerMenu)menu, inv, title);
-        this.f_97726_ = 240;
-        this.f_97727_ = 214;
-        this.f_97731_ = 114;
+        super(menu, inv, title);
+        this.imageWidth = 240;
+        this.imageHeight = 214;
+        this.inventoryLabelY = 114;
     }
 
-    protected void m_7856_() {
-        super.m_7856_();
-        this.leftPanelX = this.f_96543_ / 2 - 120;
-        this.topPanelY = this.f_96544_ / 2 - 107;
-        this.f_97735_ = this.leftPanelX;
-        this.f_97736_ = this.topPanelY;
+    protected void init() {
+        super.init();
+        this.leftPanelX = this.width / 2 - 120;
+        this.topPanelY = this.height / 2 - 107;
+        this.leftPos = this.leftPanelX;
+        this.topPos = this.topPanelY;
         this.scrollBtnX = this.leftPanelX + 240 - 22;
         this.scrollUpY = this.topPanelY + 26 - 2;
         this.scrollDownY = this.scrollUpY + 180 - 14;
@@ -70,98 +70,98 @@ extends AbstractContainerScreen<RitualSelectionMenu> {
 
     private void rebuildButtons() {
         for (EntryButton b : this.buttons) {
-            this.m_169411_((GuiEventListener)b);
+            this.removeWidget((GuiEventListener)b);
         }
         this.buttons.clear();
-        List<RitualSelectionMenu.RitualEntry> list = ((RitualSelectionMenu)this.f_97732_).availableRituals;
+        List<RitualSelectionMenu.RitualEntry> list = ((RitualSelectionMenu)this.menu).availableRituals;
         int maxVisible = 10;
-        int visibleCount = Math.min(maxVisible, Math.max(0, list.size() - ((RitualSelectionMenu)this.f_97732_).scrollOffset));
+        int visibleCount = Math.min(maxVisible, Math.max(0, list.size() - ((RitualSelectionMenu)this.menu).scrollOffset));
         for (int i = 0; i < visibleCount; ++i) {
-            int idx = ((RitualSelectionMenu)this.f_97732_).scrollOffset + i;
+            int idx = ((RitualSelectionMenu)this.menu).scrollOffset + i;
             RitualSelectionMenu.RitualEntry entry = list.get(idx);
             int y = this.topPanelY + 26 + i * 18;
-            boolean selected = ((RitualSelectionMenu)this.f_97732_).currentRitualId != null && ((RitualSelectionMenu)this.f_97732_).currentRitualId.equals((Object)entry.id);
+            boolean selected = ((RitualSelectionMenu)this.menu).currentRitualId != null && ((RitualSelectionMenu)this.menu).currentRitualId.equals((Object)entry.id);
             EntryButton btn = new EntryButton(this.leftPanelX + 8, y, 208, 16, idx, entry, selected);
-            this.m_142416_((GuiEventListener)btn);
+            this.addRenderableWidget(btn);
             this.buttons.add(btn);
         }
     }
 
-    public void m_88315_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.m_280273_(graphics);
-        super.m_88315_(graphics, mouseX, mouseY, partialTick);
-        this.m_280072_(graphics, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
-    protected void m_7286_(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         boolean clearHover;
         RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
         int x = this.leftPanelX;
         int y = this.topPanelY;
-        graphics.m_280509_(x, y, x + 240, y + 214, -15066578);
-        graphics.m_280509_(x, y, x + 240, y + 1, -11908502);
-        graphics.m_280509_(x, y, x + 1, y + 214, -11908502);
-        graphics.m_280509_(x + 240 - 1, y, x + 240, y + 214, -11908502);
-        graphics.m_280509_(x, y + 214 - 1, x + 240, y + 214, -11908502);
-        String typeStr = ((RitualSelectionMenu)this.f_97732_).divinerType == 1 ? "\u3010\u8584\u66ae\u3011" : "";
-        MutableComponent title = Component.m_237110_((String)"mbmg.ritual_select.title", (Object[])new Object[]{Component.m_237115_((String)"item.bloodmagic.ritualdiviner").getString() + typeStr});
-        graphics.m_280430_(this.f_96547_, (Component)title, x + 8, y + 8, -2838729);
-        int total = ((RitualSelectionMenu)this.f_97732_).availableRituals.size();
-        int from = Math.min(total, ((RitualSelectionMenu)this.f_97732_).scrollOffset + 1);
-        int to = Math.min(total, ((RitualSelectionMenu)this.f_97732_).scrollOffset + 10);
+        graphics.fill(x, y, x + 240, y + 214, -15066578);
+        graphics.fill(x, y, x + 240, y + 1, -11908502);
+        graphics.fill(x, y, x + 1, y + 214, -11908502);
+        graphics.fill(x + 240 - 1, y, x + 240, y + 214, -11908502);
+        graphics.fill(x, y + 214 - 1, x + 240, y + 214, -11908502);
+        String typeStr = ((RitualSelectionMenu)this.menu).divinerType == 1 ? "\u3010\u8584\u66ae\u3011" : "";
+        MutableComponent title = Component.translatable((String)"mbmg.ritual_select.title", (Object[])new Object[]{Component.translatable((String)"item.bloodmagic.ritualdiviner").getString() + typeStr});
+        graphics.drawString(this.font, (Component)title, x + 8, y + 8, -2838729);
+        int total = ((RitualSelectionMenu)this.menu).availableRituals.size();
+        int from = Math.min(total, ((RitualSelectionMenu)this.menu).scrollOffset + 1);
+        int to = Math.min(total, ((RitualSelectionMenu)this.menu).scrollOffset + 10);
         String range = total == 0 ? "0" : from + "-" + to + " / " + total;
-        graphics.m_280488_(this.f_96547_, range, x + 240 - 28 - this.f_96547_.m_92895_(range), y + 8, -5592406);
-        this.renderScrollButton(graphics, this.scrollBtnX, this.scrollUpY, "\u25b2", mouseX, mouseY, ((RitualSelectionMenu)this.f_97732_).scrollOffset > 0);
-        this.renderScrollButton(graphics, this.scrollBtnX, this.scrollDownY, "\u25bc", mouseX, mouseY, ((RitualSelectionMenu)this.f_97732_).scrollOffset + 10 < total);
-        boolean canClear = ((RitualSelectionMenu)this.f_97732_).currentRitualId != null;
+        graphics.drawString(this.font, range, x + 240 - 28 - this.font.width(range), y + 8, -5592406);
+        this.renderScrollButton(graphics, this.scrollBtnX, this.scrollUpY, "\u25b2", mouseX, mouseY, ((RitualSelectionMenu)this.menu).scrollOffset > 0);
+        this.renderScrollButton(graphics, this.scrollBtnX, this.scrollDownY, "\u25bc", mouseX, mouseY, ((RitualSelectionMenu)this.menu).scrollOffset + 10 < total);
+        boolean canClear = ((RitualSelectionMenu)this.menu).currentRitualId != null;
         boolean bl = clearHover = mouseX >= this.clearBtnX && mouseX < this.clearBtnX + 80 && mouseY >= this.clearBtnY && mouseY < this.clearBtnY + 16;
         int clearBg = !canClear ? -12965334 : (clearHover ? -9815494 : -10868182);
-        graphics.m_280509_(this.clearBtnX, this.clearBtnY, this.clearBtnX + 80, this.clearBtnY + 16, clearBg);
-        graphics.m_280653_(this.f_96547_, (Component)Component.m_237115_((String)"mbmg.ritual_select.clear"), this.clearBtnX + 40, this.clearBtnY + 4, canClear ? -1 : -7829368);
+        graphics.fill(this.clearBtnX, this.clearBtnY, this.clearBtnX + 80, this.clearBtnY + 16, clearBg);
+        graphics.drawCenteredString(this.font, (Component)Component.translatable((String)"mbmg.ritual_select.clear"), this.clearBtnX + 40, this.clearBtnY + 4, canClear ? -1 : -7829368);
     }
 
     private void renderScrollButton(GuiGraphics g, int x, int y, String label, int mx, int my, boolean enabled) {
         boolean hover;
         boolean bl = hover = mx >= x && mx < x + 16 && my >= y && my < y + 14;
         int color = !enabled ? -14013894 : (hover ? -10855814 : -12961190);
-        g.m_280509_(x, y, x + 16, y + 14, color);
-        g.m_280653_(this.f_96547_, (Component)Component.m_237113_((String)label), x + 8, y + 3, enabled ? -1 : -7829368);
+        g.fill(x, y, x + 16, y + 14, color);
+        g.drawCenteredString(this.font, (Component)Component.literal((String)label), x + 8, y + 3, enabled ? -1 : -7829368);
     }
 
-    protected void m_280003_(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
     }
 
-    public boolean m_6375_(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            if (mouseX >= (double)this.scrollBtnX && mouseX < (double)(this.scrollBtnX + 16) && mouseY >= (double)this.scrollUpY && mouseY < (double)(this.scrollUpY + 14) && ((RitualSelectionMenu)this.f_97732_).scrollOffset > 0) {
-                ((RitualSelectionMenu)this.f_97732_).scrollOffset = Math.max(0, ((RitualSelectionMenu)this.f_97732_).scrollOffset - 1);
+            if (mouseX >= (double)this.scrollBtnX && mouseX < (double)(this.scrollBtnX + 16) && mouseY >= (double)this.scrollUpY && mouseY < (double)(this.scrollUpY + 14) && ((RitualSelectionMenu)this.menu).scrollOffset > 0) {
+                ((RitualSelectionMenu)this.menu).scrollOffset = Math.max(0, ((RitualSelectionMenu)this.menu).scrollOffset - 1);
                 this.rebuildButtons();
                 return true;
             }
-            if (mouseX >= (double)this.scrollBtnX && mouseX < (double)(this.scrollBtnX + 16) && mouseY >= (double)this.scrollDownY && mouseY < (double)(this.scrollDownY + 14) && ((RitualSelectionMenu)this.f_97732_).scrollOffset + 10 < ((RitualSelectionMenu)this.f_97732_).availableRituals.size()) {
-                ++((RitualSelectionMenu)this.f_97732_).scrollOffset;
+            if (mouseX >= (double)this.scrollBtnX && mouseX < (double)(this.scrollBtnX + 16) && mouseY >= (double)this.scrollDownY && mouseY < (double)(this.scrollDownY + 14) && ((RitualSelectionMenu)this.menu).scrollOffset + 10 < ((RitualSelectionMenu)this.menu).availableRituals.size()) {
+                ++((RitualSelectionMenu)this.menu).scrollOffset;
                 this.rebuildButtons();
                 return true;
             }
-            if (((RitualSelectionMenu)this.f_97732_).currentRitualId != null && mouseX >= (double)this.clearBtnX && mouseX < (double)(this.clearBtnX + 80) && mouseY >= (double)this.clearBtnY && mouseY < (double)(this.clearBtnY + 16)) {
+            if (((RitualSelectionMenu)this.menu).currentRitualId != null && mouseX >= (double)this.clearBtnX && mouseX < (double)(this.clearBtnX + 80) && mouseY >= (double)this.clearBtnY && mouseY < (double)(this.clearBtnY + 16)) {
                 MBMGNetwork.CHANNEL.sendToServer((Object)new SelectRitualPacket(null));
-                this.m_7379_();
+                this.onClose();
                 return true;
             }
         }
-        return super.m_6375_(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    public boolean m_6050_(double x, double y, double deltaY) {
-        int before = ((RitualSelectionMenu)this.f_97732_).scrollOffset;
-        int count = ((RitualSelectionMenu)this.f_97732_).availableRituals.size();
+    public boolean mouseScrolled(double x, double y, double deltaY) {
+        int before = ((RitualSelectionMenu)this.menu).scrollOffset;
+        int count = ((RitualSelectionMenu)this.menu).availableRituals.size();
         int max = Math.max(0, count - 10);
         if (deltaY > 0.0) {
-            ((RitualSelectionMenu)this.f_97732_).scrollOffset = Math.max(0, ((RitualSelectionMenu)this.f_97732_).scrollOffset - 1);
+            ((RitualSelectionMenu)this.menu).scrollOffset = Math.max(0, ((RitualSelectionMenu)this.menu).scrollOffset - 1);
         } else if (deltaY < 0.0) {
-            ((RitualSelectionMenu)this.f_97732_).scrollOffset = Math.min(max, ((RitualSelectionMenu)this.f_97732_).scrollOffset + 1);
+            ((RitualSelectionMenu)this.menu).scrollOffset = Math.min(max, ((RitualSelectionMenu)this.menu).scrollOffset + 1);
         }
-        if (before != ((RitualSelectionMenu)this.f_97732_).scrollOffset) {
+        if (before != ((RitualSelectionMenu)this.menu).scrollOffset) {
             this.rebuildButtons();
         }
         return true;
@@ -178,36 +178,36 @@ extends AbstractContainerScreen<RitualSelectionMenu> {
         final boolean selected;
 
         EntryButton(int x, int y, int w, int h, int index, RitualSelectionMenu.RitualEntry entry, boolean selected) {
-            super(x, y, w, h, (Component)Component.m_237110_((String)entry.displayName, (Object[])new Object[]{entry.id.toString()}), b -> RitualSelectionScreen.onEntryClicked(entry), Button.f_252438_);
+            super(x, y, w, h, (Component)Component.translatable((String)entry.displayName, (Object[])new Object[]{entry.id.toString()}), b -> RitualSelectionScreen.onEntryClicked(entry), Button.DEFAULT_NARRATION);
             this.index = index;
             this.entry = entry;
             this.selected = selected;
         }
 
-        public void m_87963_(GuiGraphics g, int mx, int my, float partial) {
-            boolean hover = this.f_93622_;
+        public void renderWidget(GuiGraphics g, int mx, int my, float partial) {
+            boolean hover = this.isHovered;
             int bg = this.selected ? (hover ? -10847686 : -11900374) : (hover ? -12957094 : -14009782);
-            g.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.f_93618_, this.m_252907_() + this.f_93619_, bg);
-            g.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + 1, this.m_252907_() + this.f_93619_, -9799014);
-            g.m_280509_(this.m_252754_(), this.m_252907_() + this.f_93619_ - 1, this.m_252754_() + this.f_93618_, this.m_252907_() + this.f_93619_, -15062470);
+            g.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, bg);
+            g.fill(this.getX(), this.getY(), this.getX() + 1, this.getY() + this.height, -9799014);
+            g.fill(this.getX(), this.getY() + this.height - 1, this.getX() + this.width, this.getY() + this.height, -15062470);
             if (this.selected) {
-                g.m_280509_(this.m_252754_() + this.f_93618_ - 2, this.m_252907_(), this.m_252754_() + this.f_93618_, this.m_252907_() + this.f_93619_, -2838729);
+                g.fill(this.getX() + this.width - 2, this.getY(), this.getX() + this.width, this.getY() + this.height, -2838729);
             }
-            Component label = this.m_6035_();
+            Component label = this.getMessage();
             String full = label.getString();
-            int maxWidth = this.f_93618_ - 8;
+            int maxWidth = this.width - 8;
             Object text = full;
-            if (RitualSelectionScreen.this.f_96547_.m_92895_(full) > maxWidth) {
-                text = RitualSelectionScreen.this.f_96547_.m_92834_(full, maxWidth - RitualSelectionScreen.this.f_96547_.m_92895_("...")) + "...";
+            if (RitualSelectionScreen.this.font.width(full) > maxWidth) {
+                text = RitualSelectionScreen.this.font.plainSubstrByWidth(full, maxWidth - RitualSelectionScreen.this.font.width("...")) + "...";
             }
-            g.m_280430_(RitualSelectionScreen.this.f_96547_, (Component)Component.m_237113_((String)text), this.m_252754_() + 4, this.m_252907_() + (this.f_93619_ - 8) / 2, this.selected ? -2640 : -1);
+            g.drawString(RitualSelectionScreen.this.font, (Component)Component.literal((String)text), this.getX() + 4, this.getY() + (this.height - 8) / 2, this.selected ? -2640 : -1);
             if (hover) {
-                ArrayList<MutableComponent> tooltip = new ArrayList<MutableComponent>();
-                tooltip.add(Component.m_237113_((String)this.entry.id.toString()).m_130944_(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}));
+                ArrayList<Component> tooltip = new ArrayList<Component>();
+                tooltip.add(Component.literal((String)this.entry.id.toString()).withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}));
                 if (this.selected) {
-                    tooltip.add(Component.m_237115_((String)"mbmg.ritual_select.current_selected").m_130940_(ChatFormatting.GOLD));
+                    tooltip.add(Component.translatable((String)"mbmg.ritual_select.current_selected").withStyle(ChatFormatting.GOLD));
                 }
-                g.m_280666_(RitualSelectionScreen.this.f_96547_, tooltip, mx, my);
+                g.renderComponentTooltip(RitualSelectionScreen.this.font, tooltip, mx, my);
             }
         }
     }

@@ -40,143 +40,141 @@ import java.lang.reflect.Method;
  * </ol>
  */
 public final class BotaniaWillCompat {
-        static final String TAG_ANCIENT_WILL_PREFIX = "AncientWill_";
-        static final String[] WILL_NAMES = {"ahrim", "dharok", "guthan", "torag", "verac", "karil"};
+	static final String TAG_ANCIENT_WILL_PREFIX = "AncientWill_";
+	static final String[] WILL_NAMES = {"ahrim", "dharok", "guthan", "torag", "verac", "karil"};
 
-        private static boolean bootstrapped = false;
+	private static boolean bootstrapped = false;
 
-        private static Class<?> ANCIENT_WILL_ITEM_CLASS;
-        private static Field ANCIENT_WILL_TYPE_FIELD;
-        private static Method ANCIENT_WILL_ADD_METHOD;    // Botania ItemNBTHelper.setBoolean
-        private static Method ANCIENT_WILL_HAS_METHOD;    // Botania ItemNBTHelper.getBoolean
+	private static Class<?> ANCIENT_WILL_ITEM_CLASS;
+	private static Field ANCIENT_WILL_TYPE_FIELD;
+	private static Method ANCIENT_WILL_ADD_METHOD;    // Botania ItemNBTHelper.setBoolean
+	private static Method ANCIENT_WILL_HAS_METHOD;    // Botania ItemNBTHelper.getBoolean
 
-        private BotaniaWillCompat() {}
+	private BotaniaWillCompat() {}
 
-        static void bootstrap() throws Throwable {
-                if (bootstrapped) return;
-                bootstrapped = true;
+	static void bootstrap() throws Throwable {
+		if (bootstrapped) return;
+		bootstrapped = true;
 
-                ClassLoader cl = Thread.currentThread().getContextClassLoader();
-                Class<?> nbtHelper = Class.forName("vazkii.botania.common.helper.ItemNBTHelper", true, cl);
-                ANCIENT_WILL_ADD_METHOD = nbtHelper.getMethod("setBoolean", ItemStack.class, String.class, boolean.class);
-                ANCIENT_WILL_HAS_METHOD = nbtHelper.getMethod("getBoolean", ItemStack.class, String.class, boolean.class);
+		ClassLoader cl = Thread.currentThread().getContextClassLoader();
+		Class<?> nbtHelper = Class.forName("vazkii.botania.common.helper.ItemNBTHelper", true, cl);
+		ANCIENT_WILL_ADD_METHOD = nbtHelper.getMethod("setBoolean", ItemStack.class, String.class, boolean.class);
+		ANCIENT_WILL_HAS_METHOD = nbtHelper.getMethod("getBoolean", ItemStack.class, String.class, boolean.class);
 
-                ANCIENT_WILL_ITEM_CLASS = Class.forName("vazkii.botania.common.item.AncientWillItem", true, cl);
-                ANCIENT_WILL_TYPE_FIELD = ANCIENT_WILL_ITEM_CLASS.getField("type");
-                ANCIENT_WILL_TYPE_FIELD.setAccessible(true);
+		ANCIENT_WILL_ITEM_CLASS = Class.forName("vazkii.botania.common.item.AncientWillItem", true, cl);
+		ANCIENT_WILL_TYPE_FIELD = ANCIENT_WILL_ITEM_CLASS.getField("type");
+		ANCIENT_WILL_TYPE_FIELD.setAccessible(true);
 
-                // Subscribe the will-effect hooks onto the main Forge event bus so we don't need
-                // Botania's TerrasteelHelmItem#hasTerraArmorSet() to recognise 束灵盔甲.
-                net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(BotaniaWillEffects.class);
+		// Subscribe the will-effect hooks onto the main Forge event bus so we don't need
+		// Botania's TerrasteelHelmItem#hasTerraArmorSet() to recognise 束灵盔甲.
+		net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(BotaniaWillEffects.class);
 
-                MakeBloodMagicGreatAgain.LOGGER.info("[MBMG] Botania Ancient Will compat bootstrapped for bloodmagic:living_helmet (synthesis + combat hooks).");
-        }
+		MakeBloodMagicGreatAgain.LOGGER.info("[MBMG] Botania Ancient Will compat bootstrapped for bloodmagic:living_helmet (synthesis + combat hooks).");
+	}
 
-        // ---- Runtime API used from recipes / events ----
+	// ---- Runtime API used from recipes / events ----
 
-        public static boolean isLivingHelmet(ItemStack stack) {
-                if (stack == null || stack.isEmpty()) return false;
-                Item item = stack.getItem();
-                if (!(item instanceof ArmorItem armor)) return false;
-                if (armor.getType() != ArmorItem.Type.HELMET) return false;
-                var id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(item);
-                return id != null && "bloodmagic".equals(id.getNamespace()) && "livinghelmet".equals(id.getPath());
-        }
+	public static boolean isLivingHelmet(ItemStack stack) {
+		if (stack == null || stack.isEmpty()) return false;
+		Item item = stack.getItem();
+		if (!(item instanceof ArmorItem armor)) return false;
+		if (armor.getType() != ArmorItem.Type.HELMET) return false;
+		var id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(item);
+		return id != null && "bloodmagic".equals(id.getNamespace()) && "livinghelmet".equals(id.getPath());
+	}
 
-        static boolean isAncientWillItem(Item item) {
-                return item != null && ANCIENT_WILL_ITEM_CLASS != null
-                                && ANCIENT_WILL_ITEM_CLASS.isInstance(item);
-        }
+	static boolean isAncientWillItem(Item item) {
+		return item != null && ANCIENT_WILL_ITEM_CLASS != null
+				&& ANCIENT_WILL_ITEM_CLASS.isInstance(item);
+	}
 
-        static Enum<?> getWillType(ItemStack willStack) {
-                if (!isAncientWillItem(willStack.getItem())) return null;
-                try {
-                        return (Enum<?>) ANCIENT_WILL_TYPE_FIELD.get(willStack.getItem());
-                } catch (IllegalAccessException e) {
-                        return null;
-                }
-        }
+	static Enum<?> getWillType(ItemStack willStack) {
+		if (!isAncientWillItem(willStack.getItem())) return null;
+		try {
+			return (Enum<?>) ANCIENT_WILL_TYPE_FIELD.get(willStack.getItem());
+		} catch (IllegalAccessException e) {
+			return null;
+		}
+	}
 
-        static void writeWillTag(ItemStack helmet, Enum<?> willType, boolean value) {
-                try {
-                        // 替换 lowerName 调用为 name().toLowerCase()
-                        String tag = TAG_ANCIENT_WILL_PREFIX + willType.name().toLowerCase();
-                        ANCIENT_WILL_ADD_METHOD.invoke(null, helmet, tag, value);
-                } catch (ReflectiveOperationException e) {
-                        MakeBloodMagicGreatAgain.LOGGER.error("[MBMG] Failed to write AncientWill tag", e);
-                }
-        }
+	static void writeWillTag(ItemStack helmet, Enum<?> willType, boolean value) {
+		try {
+			String tag = TAG_ANCIENT_WILL_PREFIX + willType.name().toLowerCase();
+			ANCIENT_WILL_ADD_METHOD.invoke(null, helmet, tag, value);
+		} catch (ReflectiveOperationException e) {
+			MakeBloodMagicGreatAgain.LOGGER.error("[MBMG] Failed to write AncientWill tag", e);
+		}
+	}
 
-        static boolean readWillTag(ItemStack helmet, String lowerName) {
-                try {
-                        Boolean b = (Boolean) ANCIENT_WILL_HAS_METHOD.invoke(null, helmet,
-                                        TAG_ANCIENT_WILL_PREFIX + lowerName, false);
-                        return Boolean.TRUE.equals(b);
-                } catch (ReflectiveOperationException e) {
-                        return false;
-                }
-        }
+	static boolean readWillTag(ItemStack helmet, String lowerName) {
+		try {
+			Boolean b = (Boolean) ANCIENT_WILL_HAS_METHOD.invoke(null, helmet,
+					TAG_ANCIENT_WILL_PREFIX + lowerName, false);
+			return Boolean.TRUE.equals(b);
+		} catch (ReflectiveOperationException e) {
+			return false;
+		}
+	}
 
-        /**
-         * Our dedicated AncientWill recipe for LivingHelmet. Matches exactly when the
-         * crafting grid contains exactly 1x bloodmagic:living_helmet and exactly 1x
-         * Botania AncientWillItem (any of the six variants). The assembled output is
-         * a copy of the helmet with the corresponding AncientWill_<type> bit flipped on.
-         */
-        public static final class MBMGAncientWillRecipe extends CustomRecipe {
-                public MBMGAncientWillRecipe(ResourceLocation id, CraftingBookCategory category) {
-                        super(id, category);
-                }
+	/**
+	 * Our dedicated AncientWill recipe for LivingHelmet. Matches exactly when the
+	 * crafting grid contains exactly 1x bloodmagic:living_helmet and exactly 1x
+	 * Botania AncientWillItem (any of the six variants). The assembled output is
+	 * a copy of the helmet with the corresponding AncientWill_<type> bit flipped on.
+	 */
+	public static final class MBMGAncientWillRecipe extends CustomRecipe {
+		public MBMGAncientWillRecipe(ResourceLocation id, CraftingBookCategory category) {
+			super(id, category);
+		}
 
-                @Override
-                public boolean matches(CraftingContainer inv, Level level) {
-                        boolean foundHelmet = false;
-                        boolean foundWill = false;
-                        for (int i = 0; i < inv.getContainerSize(); i++) {
-                                ItemStack s = inv.getItem(i);
-                                if (s.isEmpty()) continue;
-                                if (!foundHelmet && isLivingHelmet(s)) {
-                                        foundHelmet = true;
-                                        continue;
-                                }
-                                if (!foundWill && isAncientWillItem(s.getItem())) {
-                                        foundWill = true;
-                                        continue;
-                                }
-                                return false;
-                        }
-                        return foundHelmet && foundWill;
-                }
+		@Override
+		public boolean matches(CraftingContainer inv, Level level) {
+			boolean foundHelmet = false;
+			boolean foundWill = false;
+			for (int i = 0; i < inv.getContainerSize(); i++) {
+				ItemStack s = inv.getItem(i);
+				if (s.isEmpty()) continue;
+				if (!foundHelmet && isLivingHelmet(s)) {
+					foundHelmet = true;
+					continue;
+				}
+				if (!foundWill && isAncientWillItem(s.getItem())) {
+					foundWill = true;
+					continue;
+				}
+				return false;
+			}
+			return foundHelmet && foundWill;
+		}
 
-                @Override
-                public ItemStack assemble(CraftingContainer inv, RegistryAccess registries) {
-                        ItemStack helmet = ItemStack.EMPTY;
-                        Enum<?> will = null;
-                        for (int i = 0; i < inv.getContainerSize(); i++) {
-                                ItemStack s = inv.getItem(i);
-                                if (s.isEmpty()) continue;
-                                if (isLivingHelmet(s)) helmet = s;
-                                else will = getWillType(s);
-                        }
-                        if (helmet.isEmpty() || will == null) return ItemStack.EMPTY;
-                        // 替换 lowerName 调用为 name().toLowerCase()
-                        if (readWillTag(helmet, will.name().toLowerCase())) {
-                                // Already have this will – disallow duplication.
-                                return ItemStack.EMPTY;
-                        }
-                        ItemStack out = helmet.copy();
-                        writeWillTag(out, will, true);
-                        return out;
-                }
+		@Override
+		public ItemStack assemble(CraftingContainer inv, RegistryAccess registries) {
+			ItemStack helmet = ItemStack.EMPTY;
+			Enum<?> will = null;
+			for (int i = 0; i < inv.getContainerSize(); i++) {
+				ItemStack s = inv.getItem(i);
+				if (s.isEmpty()) continue;
+				if (isLivingHelmet(s)) helmet = s;
+				else will = getWillType(s);
+			}
+			if (helmet.isEmpty() || will == null) return ItemStack.EMPTY;
+			if (readWillTag(helmet, will.name().toLowerCase())) {
+				// Already have this will – disallow duplication.
+				return ItemStack.EMPTY;
+			}
+			ItemStack out = helmet.copy();
+			writeWillTag(out, will, true);
+			return out;
+		}
 
-                @Override
-                public boolean canCraftInDimensions(int width, int height) {
-                        return width * height >= 2;
-                }
+		@Override
+		public boolean canCraftInDimensions(int width, int height) {
+			return width * height >= 2;
+		}
 
-                @Override
-                public RecipeSerializer<?> getSerializer() {
-                        return MBMGRecipes.ANCIENT_WILL.get();
-                }
-        }
+		@Override
+		public RecipeSerializer<?> getSerializer() {
+			return MBMGRecipes.ANCIENT_WILL.get();
+		}
+	}
 }

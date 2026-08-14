@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,11 +54,9 @@ final class ArsNouveauPerkCompat {
 	private static Object PERK_SLOT_THREE;
 	private static Constructor<?> APH_CTOR; // (ItemStack, List<List<PerkSlot>>) 构造
 
-	// PerkRegistry 内部的两个 Map：
-	//   a) IPerkProvider 实例 Map：<Item, IPerkProvider> —— PerkUtil.getPerkHolder(stack) 走此路径的 instanceof
-	//   b) 槽位布局 Map：<Item, List<List<PerkSlot>>> —— getSlotsForTier() 直接读
-	private static Map<Object, Object> PERK_PROVIDER_MAP;  // IPerkProvider
-	private static Map<Object, Object> SLOT_LAYOUT_MAP;    // List<List<PerkSlot>>
+	// PerkRegistry 内部的 provider Map：<Item, IPerkProvider<ItemStack>>
+	// 1.20.1 中只有这一个 map，槽位布局在 ArmorPerkHolder 构造函数中传入
+	private static Map<Object, Object> PERK_PROVIDER_MAP;
 
 	static final String NBT_KEY = "armor_perks";
 	static final String NBT_TIER = "tier";
@@ -72,7 +69,7 @@ final class ArsNouveauPerkCompat {
 		PERK_REGISTRY_CLASS    = Class.forName("com.hollingsworth.arsnouveau.api.registry.PerkRegistry", true, cl);
 		IPERK_PROVIDER_CLASS   = Class.forName("com.hollingsworth.arsnouveau.api.perk.IPerkProvider", true, cl);
 		PERK_SLOT_CLASS        = Class.forName("com.hollingsworth.arsnouveau.api.perk.PerkSlot", true, cl);
-		ARMOR_PERK_HOLDER_CLASS = Class.forName("com.hollingsworth.arsnouveau.common.items.data.ArmorPerkHolder", true, cl);
+		ARMOR_PERK_HOLDER_CLASS = Class.forName("com.hollingsworth.arsnouveau.api.perk.ArmorPerkHolder", true, cl);
 
 		// 2) PerkSlot 静态常量：ONE / TWO / THREE
 		PERK_SLOT_ONE   = PERK_SLOT_CLASS.getField("ONE").get(null);
@@ -93,49 +90,20 @@ final class ArsNouveauPerkCompat {
 			throw new NoSuchMethodException("ArmorPerkHolder(ItemStack, List<List<PerkSlot>>) ctor not found");
 		}
 
-		// 4) 遍历 PerkRegistry 里所有静态 Map 字段，分别识别出 IPerkProvider map 与 槽位布局 map
+		// 4) 获取 PerkRegistry.itemPerkProviderMap（ConcurrentHashMap<Item, IPerkProvider<ItemStack>>）
 		for (Field f : PERK_REGISTRY_CLASS.getDeclaredFields()) {
 			if (!Map.class.isAssignableFrom(f.getType()) || !Modifier.isStatic(f.getModifiers())) continue;
 			f.setAccessible(true);
-			try {
-				Map<?, ?> sample = (Map<?, ?>) f.get(null);
-				if (sample != null && !sample.isEmpty()) {
-					Map.Entry<?, ?> e = sample.entrySet().iterator().next();
-					if (IPERK_PROVIDER_CLASS.isInstance(e.getValue())) {
-						PERK_PROVIDER_MAP = (Map<Object, Object>) f.get(null);
-						continue;
-					}
-					if (e.getValue() instanceof List<?> list && !list.isEmpty() && list.get(0) instanceof List) {
-						SLOT_LAYOUT_MAP = (Map<Object, Object>) f.get(null);
-						continue;
-					}
-				}
-			} catch (Throwable ignore) {}
-			// 根据名字兜底
 			String n = f.getName().toLowerCase(Locale.ROOT);
-			if (SLOT_LAYOUT_MAP == null
-					&& (n.contains("slot") || n.contains("perkprovider"))) {
-				SLOT_LAYOUT_MAP = (Map<Object, Object>) f.get(null);
-			}
-			if (PERK_PROVIDER_MAP == null
-					&& n.contains("provider") && !n.contains("slot") && !n.contains("tier")) {
+			if (n.contains("provider")) {
 				PERK_PROVIDER_MAP = (Map<Object, Object>) f.get(null);
-			}
-		}
-		// Fallback：若仍未找到 map，遍历所有静态 Map
-		if (SLOT_LAYOUT_MAP == null || PERK_PROVIDER_MAP == null) {
-			for (Field f : PERK_REGISTRY_CLASS.getDeclaredFields()) {
-				if (!Map.class.isAssignableFrom(f.getType()) || !Modifier.isStatic(f.getModifiers())) continue;
-				f.setAccessible(true);
-				if (SLOT_LAYOUT_MAP == null) SLOT_LAYOUT_MAP = (Map<Object, Object>) f.get(null);
-				else if (PERK_PROVIDER_MAP == null) PERK_PROVIDER_MAP = (Map<Object, Object>) f.get(null);
-				if (SLOT_LAYOUT_MAP != null && PERK_PROVIDER_MAP != null) break;
+				break;
 			}
 		}
 
 		MakeBloodMagicGreatAgain.LOGGER.info(
-				"[MBMG] ArsNouveau 反射: provider map={}, slot map={}, APH ctor={}",
-				PERK_PROVIDER_MAP != null, SLOT_LAYOUT_MAP != null, APH_CTOR != null);
+				"[MBMG] ArsNouveau 反射: provider map={}, APH ctor={}",
+				PERK_PROVIDER_MAP != null, APH_CTOR != null);
 
 		// 5) 对 4 件束灵盔甲注册
 		String[] parts = {"livinghelmet", "livingplate", "livinglegs", "livingboots"};
@@ -208,12 +176,6 @@ final class ArsNouveauPerkCompat {
 		if (!registered && PERK_PROVIDER_MAP != null) {
 			try { PERK_PROVIDER_MAP.put(armorItem, provider); registered = true; }
 			catch (Throwable t) { MakeBloodMagicGreatAgain.LOGGER.error("[MBMG] 写入 IPerkProvider map 失败", t); }
-		}
-
-		// 路径二：写入槽位布局 map
-		if (SLOT_LAYOUT_MAP != null) {
-			try { SLOT_LAYOUT_MAP.put(armorItem, tierLayout); }
-			catch (Throwable t) { MakeBloodMagicGreatAgain.LOGGER.error("[MBMG] 写入槽位布局 map 失败", t); }
 		}
 
 		MakeBloodMagicGreatAgain.LOGGER.debug("[MBMG] 注册束灵盔甲 {}: providerOK={}",

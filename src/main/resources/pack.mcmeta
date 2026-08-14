@@ -1,6 +1,6 @@
 {
     "pack": {
-        "description": "Make Blood Magic Great Again resources",
+        "description": "${mod_name} resources",
         "pack_format": 15
     }
 }

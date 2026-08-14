@@ -1,37 +1,53 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.world.item.crafting.RecipeSerializer
- *  net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer
- *  net.minecraftforge.eventbus.api.IEventBus
- *  net.minecraftforge.registries.DeferredRegister
- *  net.minecraftforge.registries.ForgeRegistries
- *  net.minecraftforge.registries.IForgeRegistry
- *  net.minecraftforge.registries.RegistryObject
- */
 package com.mbmg.makebloodmagicgreatagain;
 
-import com.mbmg.makebloodmagicgreatagain.AvaritiaInfinityUpgradeCompat;
-import com.mbmg.makebloodmagicgreatagain.BotaniaWillCompat;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryObject;
 
+/**
+ * Centralised recipe serializer registration. All custom crafting recipes used
+ * by the compat modules are declared here so the {@link DeferredRegister} can
+ * be wired into the mod event bus during mod construction — well before
+ * {@code RegisterEvent} fires. Calling {@code DeferredRegister#register(bus)}
+ * inside {@code FMLCommonSetupEvent} (as the previous per-module approach did)
+ * is too late: the {@code RegisterEvent} has already passed and the serializer
+ * never enters the registry, causing RecipeManager to silently skip the
+ * recipe JSON files.
+ */
 final class MBMGRecipes {
-    private static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS = DeferredRegister.create((IForgeRegistry)ForgeRegistries.RECIPE_SERIALIZERS, (String)"makebloodmagicgreatagain");
-    static final RegistryObject<RecipeSerializer<?>> ANCIENT_WILL = SERIALIZERS.register("ancient_will_attach_bloodmagic", () -> new SimpleCraftingRecipeSerializer(BotaniaWillCompat.MBMGAncientWillRecipe::new));
-    static final RegistryObject<RecipeSerializer<?>> INFINITY_UPGRADE = SERIALIZERS.register("infinity_upgrade_bloodmagic", () -> new SimpleCraftingRecipeSerializer(AvaritiaInfinityUpgradeCompat.MBMGInfinityUpgradeRecipe::new));
+	private static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS =
+			DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, MakeBloodMagicGreatAgain.MOD_ID);
 
-    private MBMGRecipes() {
-    }
+	// Botania Ancient Will attach recipe (shapeless: living_helmet + AncientWillItem)
+	static final RegistryObject<RecipeSerializer<?>> ANCIENT_WILL =
+			SERIALIZERS.register("ancient_will_attach_bloodmagic",
+					() -> new SimpleCraftingRecipeSerializer<>(BotaniaWillCompat.MBMGAncientWillRecipe::new));
 
-    static void register(IEventBus modBus) {
-        SERIALIZERS.register(modBus);
-    }
+	// Re-Avaritia infinity upgrade recipe (shapeless: living_plate + infinity_catalyst)
+	static final RegistryObject<RecipeSerializer<?>> INFINITY_UPGRADE =
+			SERIALIZERS.register("infinity_upgrade_bloodmagic",
+					() -> new SimpleCraftingRecipeSerializer<>(AvaritiaInfinityUpgradeCompat.MBMGInfinityUpgradeRecipe::new));
+
+	// Ars Nouveau 束灵盔甲 tier 升级（工作台兜底：配合附魔装置 armor_upgrade 一起注册，确保任一可用）
+	//  tier 0→1: 束灵盔甲 + 4 blaze_fiber + 2 magebloom_fiber
+	//  tier 1→2: 束灵盔甲 + 4 end_fiber   + 2 arcane_core
+	//  tier 2→3: 束灵盔甲 + 4 end_fiber   + 4 arcane_core + 1 nether_star
+	static final RegistryObject<RecipeSerializer<?>> ARMOR_UPGRADE_T1 =
+			SERIALIZERS.register("armor_upgrade_t1_bloodmagic",
+					() -> new SimpleCraftingRecipeSerializer<>(ArsNouveauPerkCompat.MBMGArmorUpgradeT1Recipe::new));
+	static final RegistryObject<RecipeSerializer<?>> ARMOR_UPGRADE_T2 =
+			SERIALIZERS.register("armor_upgrade_t2_bloodmagic",
+					() -> new SimpleCraftingRecipeSerializer<>(ArsNouveauPerkCompat.MBMGArmorUpgradeT2Recipe::new));
+	static final RegistryObject<RecipeSerializer<?>> ARMOR_UPGRADE_T3 =
+			SERIALIZERS.register("armor_upgrade_t3_bloodmagic",
+					() -> new SimpleCraftingRecipeSerializer<>(ArsNouveauPerkCompat.MBMGArmorUpgradeT3Recipe::new));
+
+	private MBMGRecipes() {}
+
+	static void register(IEventBus modBus) {
+		SERIALIZERS.register(modBus);
+	}
 }
-

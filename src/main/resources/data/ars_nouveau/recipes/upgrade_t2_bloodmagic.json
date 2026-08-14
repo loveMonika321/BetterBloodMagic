@@ -1,0 +1,11 @@
+{
+  "type": "ars_nouveau:armor_upgrade",
+  "tier": 2,
+  "sourceCost": 5000,
+  "pedestalItems": [
+    { "item": "ars_nouveau:end_fiber", "count": 4 },
+    { "item": "ars_nouveau:arcane_core", "count": 2 }
+  ],
+  "reagent": { "tag": "forge:armors" },
+  "result": { "tag": "forge:armors" }
+}

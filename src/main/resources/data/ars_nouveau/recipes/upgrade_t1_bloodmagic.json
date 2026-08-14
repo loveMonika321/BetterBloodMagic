@@ -1,0 +1,11 @@
+{
+  "type": "ars_nouveau:armor_upgrade",
+  "tier": 1,
+  "sourceCost": 2500,
+  "pedestalItems": [
+    { "item": "ars_nouveau:blaze_fiber", "count": 4 },
+    { "item": "ars_nouveau:magebloom_fiber", "count": 2 }
+  ],
+  "reagent": { "tag": "forge:armors" },
+  "result": { "tag": "forge:armors" }
+}

@@ -1,36 +1,39 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraftforge.common.ForgeConfigSpec
- *  net.minecraftforge.common.ForgeConfigSpec$BooleanValue
- *  net.minecraftforge.common.ForgeConfigSpec$Builder
- */
 package com.mbmg.makebloodmagicgreatagain;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public final class MBMGConfig {
-    public static final ForgeConfigSpec COMMON_SPEC;
-    public static final ForgeConfigSpec.BooleanValue enableBotaniaWill;
-    public static final ForgeConfigSpec.BooleanValue enableInfiniteUpgradePoints;
-    public static final ForgeConfigSpec.BooleanValue enableRitualDivinerGUI;
+	public static final ForgeConfigSpec COMMON_SPEC;
 
-    private MBMGConfig() {
-    }
+	public static final ForgeConfigSpec.BooleanValue enableBotaniaWill;
+	public static final ForgeConfigSpec.BooleanValue enableArsNouveauFiber;
+	public static final ForgeConfigSpec.BooleanValue enableInfiniteUpgradePoints;
 
-    static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        builder.push("botania");
-        enableBotaniaWill = builder.comment("\u8ba9\u675f\u7075\u5934\u76d4\u5b9e\u73b0\u690d\u7269\u9b54\u6cd5 AncientWillContainer\uff0c\u53ef\u50cf\u6cf0\u62c9\u5934\u76d4\u4e00\u6837\u88c5\u4e0a\u516d\u79cd\u610f\u5fd7\u3002(\u9ed8\u8ba4: true)").define("enableAncientWill", true);
-        builder.pop();
-        builder.push("avaritia");
-        enableInfiniteUpgradePoints = builder.comment("\u8ba9\u675f\u7075\u80f8\u7532\u53ef\u901a\u8fc7\u5408\u6210\u65e0\u5c3d\u50ac\u5316\u5242(infinity_catalyst)\u5c06\u5347\u7ea7\u70b9\u6570\u4e0a\u9650\u63d0\u5347\u81f3Integer.MAX_VALUE\u3002\u5408\u6210: living_plate + infinity_catalyst\u3002\u4ec5\u5f53\u68c0\u6d4b\u5230 avaritia \u65f6\u751f\u6548\u3002(\u9ed8\u8ba4: true)").define("enableInfiniteUpgradePoints", true);
-        builder.pop();
-        builder.push("ritual_diviner");
-        enableRitualDivinerGUI = builder.comment("\u4e3a\u8840\u9b54\u6cd5\u4eea\u5f0f\u63a8\u6d4b\u6756(ritualdiviner / ritualdivinerdusk)\u5f00\u542f\u4eea\u5f0f\u9009\u62e9GUI\uff1a\u624b\u6301\u63a8\u6d4b\u6756\u6309 Z \u952e\u76f4\u63a5\u4ece\u5217\u8868\u9009\u62e9\u4eea\u5f0f\uff0c\u66ff\u4ee3\u539f\u672c Shift+\u5de6\u53f3\u952e\u5faa\u73af\u5207\u6362\u3002(\u9ed8\u8ba4: true)").define("enableRitualGUI", true);
-        builder.pop();
-        COMMON_SPEC = builder.build();
-    }
+	static {
+		final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+
+		builder.push("botania");
+		enableBotaniaWill = builder
+				.comment("让束灵头盔实现植物魔法 AncientWillContainer，可像泰拉头盔一样装上六种意志。(默认: true)")
+				.define("enableAncientWill", true);
+		builder.pop();
+
+		builder.push("ars_nouveau");
+		enableArsNouveauFiber = builder
+				.comment("让四件束灵盔甲可在新生魔艺改衣台装线程（Perk），并可在附魔装置/工作台逐级升级：\n"
+						+ "Tier1=[Ⅰ 槽 ×1]   Tier2=[Ⅱ 槽 ×2]   Tier3=[Ⅲ 槽 ×3]\n"
+						+ "(默认: true)")
+				.define("enableArmorPerkSlots", true);
+		builder.pop();
+
+		builder.push("avaritia");
+		enableInfiniteUpgradePoints = builder
+				.comment("让束灵胸甲可通过合成无尽催化剂(infinity_catalyst)将升级点数上限提升至Integer.MAX_VALUE。合成: living_plate + infinity_catalyst。仅当检测到 avaritia 时生效。(默认: true)")
+				.define("enableInfiniteUpgradePoints", true);
+		builder.pop();
+
+		COMMON_SPEC = builder.build();
+	}
+
+	private MBMGConfig() {}
 }
-

@@ -62,3 +62,10 @@ jar {
         ])
     }
 }
+
+// Ensure ${} placeholders in mods.toml / pack.mcmeta are replaced at build time
+processResources {
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand project.properties
+    }
+}

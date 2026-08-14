@@ -21,7 +21,7 @@ public final class MBMGConfig {
 		builder.push("ars_nouveau");
 		enableArsNouveauFiber = builder
 				.comment("让四件束灵盔甲可在新生魔艺改衣台装线程（Perk），并可在附魔装置/工作台逐级升级：\n"
-						+ "Tier1=[Ⅰ 槽 ×1]   Tier2=[Ⅱ 槽 ×2]   Tier3=[Ⅲ 槽 ×3]\n"
+						+ "Tier0=[Ⅰ 槽 ×1]   Tier1=[Ⅱ 槽 ×2]   Tier2=[Ⅲ 槽 ×3]   Tier3=[Ⅲ 槽 ×3]\n"
 						+ "(默认: true)")
 				.define("enableArmorPerkSlots", true);
 		builder.pop();

@@ -32,9 +32,10 @@ final class MBMGRecipes {
 					() -> new SimpleCraftingRecipeSerializer<>(AvaritiaInfinityUpgradeCompat.MBMGInfinityUpgradeRecipe::new));
 
 	// Ars Nouveau 束灵盔甲 tier 升级（工作台兜底：配合附魔装置 armor_upgrade 一起注册，确保任一可用）
-	//  tier 0→1: 束灵盔甲 + 4 blaze_fiber + 2 magebloom_fiber
-	//  tier 1→2: 束灵盔甲 + 4 end_fiber   + 2 arcane_core
-	//  tier 2→3: 束灵盔甲 + 4 end_fiber   + 4 arcane_core + 1 nether_star
+	//  NBT 键 "an_stack_perks" 与 StackPerkHolder.getTagString() 保持一致
+	//  tier 0→1: 束灵盔甲 + 2 blaze rod (与 AN 原版 T1 一致)
+	//  tier 1→2: 束灵盔甲 + 2 ender pearl + 1 chorus fruit (与 AN 原版 T2 一致)
+	//  tier 2→3: 束灵盔甲 + 1 blaze rod + 2 ender pearl + 1 chorus fruit + 1 nether_star (AN 原版无 T3，自制)
 	static final RegistryObject<RecipeSerializer<?>> ARMOR_UPGRADE_T1 =
 			SERIALIZERS.register("armor_upgrade_t1_bloodmagic",
 					() -> new SimpleCraftingRecipeSerializer<>(ArsNouveauPerkCompat.MBMGArmorUpgradeT1Recipe::new));

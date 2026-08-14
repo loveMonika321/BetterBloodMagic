@@ -36,9 +36,10 @@ import java.util.Map;
  *   c) 渲染层读取 ArmorPerkHolder.getSlotsForTier() 显示石板Ⅰ/Ⅱ/Ⅲ。
  *
  * 槽位布局（严格按你要求）：
- *   初始 tier=0 → 显示 T1 = [ONE]                      (1 个 I 级槽)
- *   升级到 tier=1 → 显示 T2 = [TWO, TWO]                (2 个 II 级槽)
- *   升级到 tier=2 → 显示 T3 = [THREE, THREE, THREE]     (3 个 III 级槽)
+ *   初始 tier=0 → 显示 T0 = [ONE]                      (1 个 I 级槽)
+ *   升级到 tier=1 → 显示 T1 = [TWO, TWO]                (2 个 II 级槽)
+ *   升级到 tier=2 → 显示 T2 = [THREE, THREE, THREE]     (3 个 III 级槽)
+ *   升级到 tier=3 → 显示 T3 = [THREE, THREE, THREE]     (3 个 III 级槽，与 T2 相同)
  *
  * 运行时全部通过反射+动态代理对接真实 Ars Nouveau，编译期仅依赖 stubs 下的空壳避免直接依赖冲突。
  */
@@ -58,7 +59,9 @@ final class ArsNouveauPerkCompat {
 	// 1.20.1 中只有这一个 map，槽位布局在 ArmorPerkHolder 构造函数中传入
 	private static Map<Object, Object> PERK_PROVIDER_MAP;
 
-	static final String NBT_KEY = "armor_perks";
+	// StackPerkHolder.getTagString() returns "an_stack_perks" — must match exactly
+	// so that crafting-table fallback recipes stay in sync with the enchanting apparatus path.
+	static final String NBT_KEY = "an_stack_perks";
 	static final String NBT_TIER = "tier";
 	static final String NBT_PERKS = "perks";
 
@@ -120,9 +123,13 @@ final class ArsNouveauPerkCompat {
 			}
 
 			// Tier 布局（用真实 PerkSlot 实例构造）
+			// slotsForTier.get(tier) is called by ArmorPerkHolder.getSlotsForTier(),
+			// so the list MUST have an entry for every reachable tier value.
+			// tier 0 = initial, tier 1 = after T1 upgrade, tier 2 = after T2, tier 3 = after T3.
 			List<List<Object>> tierLayout = List.of(
 					List.of(PERK_SLOT_ONE),
 					List.of(PERK_SLOT_TWO, PERK_SLOT_TWO),
+					List.of(PERK_SLOT_THREE, PERK_SLOT_THREE, PERK_SLOT_THREE),
 					List.of(PERK_SLOT_THREE, PERK_SLOT_THREE, PERK_SLOT_THREE)
 			);
 			registerFor(i, tierLayout);
@@ -187,7 +194,7 @@ final class ArsNouveauPerkCompat {
 	}
 
 	/**
-	 * 给 ItemStack 写默认 armor_perks NBT（tier=0，perks=[]），用于第一次放入改衣台前的兜底。
+	 * 给 ItemStack 写默认 an_stack_perks NBT（tier=0，perks=[]），用于第一次放入改衣台前的兜底。
 	 * （实际是由 ArmorPerkHolder 的构造函数在 getPerkHolder 时写的，这里作为外部可调用入口）
 	 */
 	static void ensureDefaultPerksNbt(ItemStack stack) {
@@ -200,9 +207,10 @@ final class ArsNouveauPerkCompat {
 
 	// ====================================================================
 	// 工作台兜底盔甲 tier 升级（保留 NBT / 附魔 / perk / 血魔法数据）
-	//   T0→T1: 束灵盔甲 + 4 blaze_fiber     + 2 magebloom_fiber
-	//   T1→T2: 束灵盔甲 + 4 end_fiber       + 2 arcane_core
-	//   T2→T3: 束灵盔甲 + 4 end_fiber       + 4 arcane_core     + 1 nether_star
+	//   NBT 键 "an_stack_perks" 与 StackPerkHolder.getTagString() 保持一致
+	//   T0→T1: 束灵盔甲 + 2 blaze rod (与 AN 原版 T1 一致)
+	//   T1→T2: 束灵盔甲 + 2 ender pearl + 1 chorus fruit (与 AN 原版 T2 一致)
+	//   T2→T3: 束灵盔甲 + 1 blaze rod + 2 ender pearl + 1 chorus fruit + 1 nether_star (自制)
 	// ====================================================================
 
 	private static boolean isBMItem(ItemStack s, String namespace, String... candidates) {

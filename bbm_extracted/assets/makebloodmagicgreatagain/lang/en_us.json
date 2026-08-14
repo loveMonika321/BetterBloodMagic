@@ -1,0 +1,15 @@
+{
+  "mbmg.diviner_workbench.title": "Ritual Diviner Crafting",
+  "mbmg.diviner_workbench.craft": "Craft",
+  "mbmg.diviner_workbench.craft_success": "Successfully crafted %s",
+  "mbmg.diviner_workbench.craft_fail": "Insufficient materials!",
+
+  "mbmg.ritual_select.title": "Ritual Selector — %s",
+  "mbmg.ritual_select.selected": "Selected ritual: %s",
+  "mbmg.ritual_select.cleared": "Ritual selection cleared",
+  "mbmg.ritual_select.current_selected": "Currently selected",
+  "mbmg.ritual_select.clear": "Clear",
+
+  "mbmg.key.ritual_select": "Open Ritual Selector (Ritual Diviner)",
+  "mbmg.key.categories.bloodmagic": "Blood Magic (MBMG)"
+}

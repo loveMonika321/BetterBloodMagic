@@ -1,0 +1,45 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="makebloodmagicgreatagain"
+version="1.0.0"
+displayName="Make Blood Magic Great Again"
+authors="MakeBloodMagicGreatAgain"
+description='''è¡é­æ³éå±modï¼æçµå¤´çå¯è£å¤æå¿ãæçµçç²åçº§ç¹æ°æåè³Integer.MAX_VALUEãä»ªå¼æ¨æµæå¶ä½å·¥ä½å°GUIã'''
+
+[[dependencies.makebloodmagicgreatagain]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.makebloodmagicgreatagain]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.makebloodmagicgreatagain]]
+    modId="bloodmagic"
+    mandatory=true
+    versionRange="[3.3.8-50,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.makebloodmagicgreatagain]]
+    modId="botania"
+    mandatory=false
+    versionRange="[1.20.1-441,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.makebloodmagicgreatagain]]
+    modId="avaritia"
+    mandatory=false
+    versionRange="[1.4.1,)"
+    ordering="AFTER"
+    side="BOTH"

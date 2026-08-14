@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Specification-Title: makebloodmagicgreatagain
+Specification-Vendor: MakeBloodMagicGreatAgain
+Specification-Version: 1
+Implementation-Title: makebloodmagicgreatagain
+Implementation-Version: 1.0.0
+Implementation-Vendor: MakeBloodMagicGreatAgain
+Implementation-Timestamp: 2026-08-12T09:46:02+0000
+MixinConfigs: makebloodmagicgreatagain.mixins.json
+

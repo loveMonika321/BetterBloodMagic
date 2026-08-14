@@ -1,0 +1,15 @@
+{
+  "mbmg.diviner_workbench.title": "仪式推测杖制作",
+  "mbmg.diviner_workbench.craft": "制作",
+  "mbmg.diviner_workbench.craft_success": "成功制作了 %s",
+  "mbmg.diviner_workbench.craft_fail": "材料不足！",
+
+  "mbmg.ritual_select.title": "仪式选择器 — %s",
+  "mbmg.ritual_select.selected": "已选择仪式：%s",
+  "mbmg.ritual_select.cleared": "已清除仪式选择",
+  "mbmg.ritual_select.current_selected": "当前选择",
+  "mbmg.ritual_select.clear": "清除选择",
+
+  "mbmg.key.ritual_select": "打开仪式选择器（仪式推测杖）",
+  "mbmg.key.categories.bloodmagic": "血魔法 (让血魔法再次伟大)"
+}

@@ -1,14 +1,10 @@
 {
   "type": "ars_nouveau:armor_upgrade",
   "pedestalItems": [
-    { "item": { "item": "ars_nouveau:end_fiber" } },
-    { "item": { "item": "ars_nouveau:end_fiber" } },
-    { "item": { "item": "ars_nouveau:end_fiber" } },
-    { "item": { "item": "ars_nouveau:end_fiber" } },
-    { "item": { "item": "ars_nouveau:arcane_core" } },
-    { "item": { "item": "ars_nouveau:arcane_core" } },
-    { "item": { "item": "ars_nouveau:arcane_core" } },
-    { "item": { "item": "ars_nouveau:arcane_core" } },
+    { "item": { "tag": "forge:rods/blaze" } },
+    { "item": { "tag": "forge:ender_pearls" } },
+    { "item": { "tag": "forge:ender_pearls" } },
+    { "item": { "item": "minecraft:chorus_fruit" } },
     { "item": { "item": "minecraft:nether_star" } }
   ],
   "sourceCost": 8000,

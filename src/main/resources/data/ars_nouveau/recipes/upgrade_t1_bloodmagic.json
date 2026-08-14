@@ -1,12 +1,8 @@
 {
   "type": "ars_nouveau:armor_upgrade",
   "pedestalItems": [
-    { "item": { "item": "ars_nouveau:blaze_fiber" } },
-    { "item": { "item": "ars_nouveau:blaze_fiber" } },
-    { "item": { "item": "ars_nouveau:blaze_fiber" } },
-    { "item": { "item": "ars_nouveau:blaze_fiber" } },
-    { "item": { "item": "ars_nouveau:magebloom_fiber" } },
-    { "item": { "item": "ars_nouveau:magebloom_fiber" } }
+    { "item": { "tag": "forge:rods/blaze" } },
+    { "item": { "tag": "forge:rods/blaze" } }
   ],
   "sourceCost": 2500,
   "tier": 1

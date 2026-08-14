@@ -250,9 +250,18 @@ final class ArsNouveauPerkCompat {
 				public String name() { return "minecraft:" + path; }
 			};
 		}
-		static IngSpec tag(String namespace, String path, int count) {
-			// 简化版：仅用于名称展示，匹配走物品名
-			return arsIng(path);
+		static IngSpec tagIng(String tagPath) {
+			return new IngSpec() {
+				public boolean matches(ItemStack s) {
+					if (s == null || s.isEmpty()) return false;
+					var tags = s.getTags().toList();
+					for (var t : tags) {
+						if (t.location().toString().equals(tagPath)) return true;
+					}
+					return false;
+				}
+				public String name() { return tagPath; }
+			};
 		}
 
 		private boolean isLivingArmor(ItemStack s) {
@@ -310,10 +319,10 @@ final class ArsNouveauPerkCompat {
 		}
 	}
 
-	/** T0→T1: 4 blaze_fiber + 2 magebloom_fiber */
+	/** T0→T1: 2 blaze rod (和 AN 原版一致) */
 	public static final class MBMGArmorUpgradeT1Recipe extends AbstractArmorUpgradeRecipe {
-		static final IngSpec[] MATS = { arsIng("blaze_fiber"), arsIng("magebloom_fiber") };
-		static final int[] COUNTS = { 4, 2 };
+		static final IngSpec[] MATS = { tagIng("forge:rods/blaze") };
+		static final int[] COUNTS = { 2 };
 		public MBMGArmorUpgradeT1Recipe(ResourceLocation id, CraftingBookCategory cat) { super(id, cat); }
 		@Override int targetTier() { return 1; }
 		@Override IngSpec[] materials() { return MATS; }
@@ -321,10 +330,10 @@ final class ArsNouveauPerkCompat {
 		@Override public RecipeSerializer<?> getSerializer() { return MBMGRecipes.ARMOR_UPGRADE_T1.get(); }
 	}
 
-	/** T1→T2: 4 end_fiber + 2 arcane_core */
+	/** T1→T2: 2 ender pearl + 1 chorus fruit (和 AN 原版一致) */
 	public static final class MBMGArmorUpgradeT2Recipe extends AbstractArmorUpgradeRecipe {
-		static final IngSpec[] MATS = { arsIng("end_fiber"), arsIng("arcane_core") };
-		static final int[] COUNTS = { 4, 2 };
+		static final IngSpec[] MATS = { tagIng("forge:ender_pearls"), mcIng("chorus_fruit") };
+		static final int[] COUNTS = { 2, 1 };
 		public MBMGArmorUpgradeT2Recipe(ResourceLocation id, CraftingBookCategory cat) { super(id, cat); }
 		@Override int targetTier() { return 2; }
 		@Override IngSpec[] materials() { return MATS; }
@@ -332,10 +341,10 @@ final class ArsNouveauPerkCompat {
 		@Override public RecipeSerializer<?> getSerializer() { return MBMGRecipes.ARMOR_UPGRADE_T2.get(); }
 	}
 
-	/** T2→T3: 4 end_fiber + 4 arcane_core + 1 nether_star */
+	/** T2→T3: 1 blaze rod + 2 ender pearl + 1 chorus fruit + 1 nether star (AN 原版无 tier3，自制) */
 	public static final class MBMGArmorUpgradeT3Recipe extends AbstractArmorUpgradeRecipe {
-		static final IngSpec[] MATS = { arsIng("end_fiber"), arsIng("arcane_core"), mcIng("nether_star") };
-		static final int[] COUNTS = { 4, 4, 1 };
+		static final IngSpec[] MATS = { tagIng("forge:rods/blaze"), tagIng("forge:ender_pearls"), mcIng("chorus_fruit"), mcIng("nether_star") };
+		static final int[] COUNTS = { 1, 2, 1, 1 };
 		public MBMGArmorUpgradeT3Recipe(ResourceLocation id, CraftingBookCategory cat) { super(id, cat); }
 		@Override int targetTier() { return 3; }
 		@Override IngSpec[] materials() { return MATS; }

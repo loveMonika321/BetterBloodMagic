@@ -10,6 +10,10 @@ repositories {
     maven { name = 'CurseMaven'; url = 'https://cursemaven.com' }
 }
 dependencies {
+    implementation "maven.modrinth:PbNc6qBY:1YxwR16I"
+    implementation "maven.modrinth:pfjLUfGv:Y3Gc88UV"
+    implementation "maven.modrinth:TKB6INcv:Hw2aD01e"
+    implementation "maven.modrinth:QeB3NRC5:ssUn2Txe"
     minecraft "net.minecraftforge:forge:1.20.1-47.4.10"
 }
 tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }

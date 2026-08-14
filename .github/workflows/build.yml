@@ -45,7 +45,7 @@ jobs:
         sed -i "s/id 'net.minecraftforge.gradle' version '\[6.0,6.2)'/id 'net.minecraftforge.gradle' version '6.0.23'/" build.gradle
 
     - name: Build source JAR (skip compilation)
-      run: gradle build --no-daemon
+      run: gradle sourceJar --no-daemon
 
     - name: Upload source JAR artifact
       uses: actions/upload-artifact@v4

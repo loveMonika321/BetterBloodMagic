@@ -2,21 +2,43 @@ plugins {
     id 'java'
     id 'net.minecraftforge.gradle' version '6.0.23'
 }
+
 group = 'com.yourname'
 version = '1.0.0'
-java { toolchain.languageVersion = JavaLanguageVersion.of(17) }
-minecraft { mappings channel: 'official', version: '1.20.1' }
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+}
+
 repositories {
-    maven { name = 'CurseMaven'; url = 'https://cursemaven.com' }
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+    }
+    maven {
+        name = 'CurseMaven'
+        url = 'https://cursemaven.com'
+    }
+    mavenCentral()
 }
+
 dependencies {
-    implementation "maven.modrinth:PbNc6qBY:1YxwR16I"
-    implementation "maven.modrinth:pfjLUfGv:Y3Gc88UV"
-    implementation "maven.modrinth:TKB6INcv:Hw2aD01e"
-    implementation "maven.modrinth:QeB3NRC5:ssUn2Txe"
     minecraft "net.minecraftforge:forge:1.20.1-47.4.10"
+    
+    // Modrinth dependencies
+    implementation "maven.modrinth:QeB3NRC5:ssUn2Txe"
+    implementation "maven.modrinth:TKB6INcv:Hw2aD01e"
+    implementation "maven.modrinth:pfjLUfGv:Y3Gc88UV"
+    implementation "maven.modrinth:PbNc6qBY:1YxwR16I"
 }
-tasks.withType(JavaCompile) { options.encoding = 'UTF-8' }
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
 tasks.register('sourceJar', Jar) {
     from sourceSets.main.allJava

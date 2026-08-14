@@ -70,7 +70,7 @@ extends AbstractContainerScreen<RitualSelectionMenu> {
 
     private void rebuildButtons() {
         for (EntryButton b : this.buttons) {
-            this.removeWidget((GuiEventListener)b);
+            this.removeWidget(b);
         }
         this.buttons.clear();
         List<RitualSelectionMenu.RitualEntry> list = ((RitualSelectionMenu)this.menu).availableRituals;
@@ -80,7 +80,7 @@ extends AbstractContainerScreen<RitualSelectionMenu> {
             int idx = ((RitualSelectionMenu)this.menu).scrollOffset + i;
             RitualSelectionMenu.RitualEntry entry = list.get(idx);
             int y = this.topPanelY + 26 + i * 18;
-            boolean selected = ((RitualSelectionMenu)this.menu).currentRitualId != null && ((RitualSelectionMenu)this.menu).currentRitualId.equals((Object)entry.id);
+            boolean selected = ((RitualSelectionMenu)this.menu).currentRitualId != null && ((RitualSelectionMenu)this.menu).currentRitualId.equals(entry.id);
             EntryButton btn = new EntryButton(this.leftPanelX + 8, y, 208, 16, idx, entry, selected);
             this.addRenderableWidget(btn);
             this.buttons.add(btn);
@@ -203,9 +203,9 @@ extends AbstractContainerScreen<RitualSelectionMenu> {
             g.drawString(RitualSelectionScreen.this.font, (Component)Component.literal((String)text), this.getX() + 4, this.getY() + (this.height - 8) / 2, this.selected ? -2640 : -1);
             if (hover) {
                 ArrayList<Component> tooltip = new ArrayList<Component>();
-                tooltip.add(Component.literal((String)this.entry.id.toString()).withStyle(new ChatFormatting[]{ChatFormatting.GRAY, ChatFormatting.ITALIC}));
+                tooltip.add(Component.literal(this.entry.id.toString()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
                 if (this.selected) {
-                    tooltip.add(Component.translatable((String)"mbmg.ritual_select.current_selected").withStyle(ChatFormatting.GOLD));
+                    tooltip.add(Component.translatable("mbmg.ritual_select.current_selected").withStyle(ChatFormatting.GOLD));
                 }
                 g.renderComponentTooltip(RitualSelectionScreen.this.font, tooltip, mx, my);
             }

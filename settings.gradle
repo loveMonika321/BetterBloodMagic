@@ -1,7 +1,12 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven { name = 'Forge'; url = 'https://maven.minecraftforge.net/' }
+        maven {
+            name = 'Forge'
+            url = 'https://maven.minecraftforge.net/'
+            allowInsecureProtocol = false
+        }
+        mavenCentral()
     }
 }
 rootProject.name = 'BetterBloodMagic'
